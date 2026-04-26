@@ -468,13 +468,11 @@ For best results, record a reference audio file with these characteristics:
 # Convert any format to WAV 24kHz mono (25 seconds)
 ffmpeg -i input.m4a -t 25 -ar 24000 -ac 1 ~/voice_clone/audio_samples/ref_fr_25s.wav
 
-# Transcribe with Whisper on GPU
+# Transcribe with Whisper on GPU. Change language parameter according to your needs (ex.: 'fr' for French)
 source ~/voice_clone/bin/activate
 python -c "
 import whisper
 model = whisper.load_model('medium', device='cuda')
-
-# Change language parameter according to your needs (ex.: 'fr' for French)
 result = model.transcribe('<YOUR CUSTOM WAV FILE>', language='en')
 print(result['text'])
 "
