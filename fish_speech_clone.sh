@@ -23,7 +23,7 @@
 #
 # NOTES:
 #   - Requires the voice_clone venv with Fish Speech 1.5 installed
-#   - Forces torch 2.11+cu130 from kohya venv (GPU support on GB10)
+#   - Forces torch 2.11+cu130 from NVIDIA base venv (GPU support on GB10)
 #   - Pipeline: encode ref audio -> generate semantic codes -> decode to audio
 # =============================================================================
 
@@ -32,7 +32,8 @@ set -e
 # --- Configuration ---
 # Path to the site-packages directory containing torch 2.11+cu130 (pre-installed by NVIDIA on GX10)
 # To find it on your system: find ~ -name "torch" -path "*/site-packages/torch" -type d 2>/dev/null
-NVIDIA_TORCH_PATH="$HOME/kohya_ss/.venv_kohya/lib/python3.12/site-packages"
+NVIDIA_TORCH_PATH=""  # Set this to your NVIDIA torch site-packages path
+# To find it: find ~ -name "torch" -path "*/site-packages/torch" -type d 2>/dev/null
 
 FISH_DIR="$HOME/voice_clone/fish-speech"
 CHECKPOINT="$FISH_DIR/checkpoints/fish-speech-1.5"

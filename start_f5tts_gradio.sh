@@ -20,7 +20,8 @@
 # =============================================================================
 
 # Path to the site-packages directory containing torch 2.11+cu130 (pre-installed by NVIDIA on GX10)
-NVIDIA_TORCH_PATH="$HOME/kohya_ss/.venv_kohya/lib/python3.12/site-packages"
+NVIDIA_TORCH_PATH=""  # Set this to your NVIDIA torch site-packages path
+# To find it: find ~ -name "torch" -path "*/site-packages/torch" -type d 2>/dev/null
 
 source ~/f5tts/bin/activate
 echo "$NVIDIA_TORCH_PATH" > ~/f5tts/lib/python3.12/site-packages/nvidia_torch.pth

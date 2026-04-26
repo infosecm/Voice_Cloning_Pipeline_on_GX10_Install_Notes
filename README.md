@@ -47,7 +47,7 @@ The GX10 has several important differences from a standard x86 Linux workstation
 
 **ARM aarch64.** Many Python packages do not provide prebuilt `aarch64` wheels. Several packages must be compiled from source or pinned to specific versions that provide aarch64 wheels. This is the primary source of installation friction throughout this guide.
 
-**CUDA 13.0 + PyTorch.** The GX10 ships with CUDA 13.0. As of mid-2025, there are no official PyTorch wheels for CUDA 13 on aarch64 published on PyPI or `download.pytorch.org`. The CUDA-enabled PyTorch (`torch 2.11.0+cu130`) is **pre-installed by NVIDIA** as part of the DGX/Spark system stack during the initial machine setup. It lives in whatever Python environment was set up at install time (in this guide, that is `kohya_ss/.venv_kohya`). Do not attempt to install it manually via pip — no public wheel exists.
+**CUDA 13.0 + PyTorch.** The GX10 ships with CUDA 13.0. As of mid-2025, there are no official PyTorch wheels for CUDA 13 on aarch64 published on PyPI or `download.pytorch.org`. The CUDA-enabled PyTorch (`torch 2.11.0+cu130`) is **pre-installed by NVIDIA** as part of the DGX/Spark system stack during the initial machine setup. It lives in whatever Python environment was set up at install time (in this guide, that is `nvidia_torch_venv`). Do not attempt to install it manually via pip — no public wheel exists.
 
 **Torch version pinning.** Several packages (CosyVoice, Fish Speech) attempt to install their own version of PyTorch during setup, which silently overwrites the CUDA-enabled version with a CPU-only build from PyPI. The fix is to always restore the `.pth` pointer to the NVIDIA-provided torch after installing any package that depends on torch.
 
@@ -65,11 +65,11 @@ The GX10 has several important differences from a standard x86 Linux workstation
 ├── fish-speech/                # Fish Speech source (git clone, tag v1.5.1)
 ├── CosyVoice/                  # CosyVoice source (git clone)
 └── audio_samples/              # Reference audio files and generated outputs
-    ├── ref_fr_25s.wav          # Primary French reference (25s, your voice)
+    ├── ref_25s.wav             # Primary audio reference (25s, your voice)
     └── output_*.wav            # Generated audio files (timestamped)
 
 ~/f5tts/                        # Dedicated venv for F5-TTS (gradio 6.x)
-~/kohya_ss/.venv_kohya/         # NVIDIA-provided torch 2.11+cu130 lives here
+~/nvidia_torch_venv/            # NVIDIA-provided torch 2.11+cu130 (path varies per system)
 ```
 
 ---
@@ -127,7 +127,7 @@ Three venvs are used to avoid dependency conflicts, particularly around `gradio`
 |------|------|---------|----------------|
 | `voice_clone` | `~/voice_clone/` | CosyVoice 2 + Fish Speech | 5.4.0 |
 | `f5tts` | `~/f5tts/` | F5-TTS only | 6.10.0 |
-| NVIDIA base | `~/kohya_ss/.venv_kohya/` | Source of torch 2.11+cu130 | — |
+| NVIDIA base | `~/nvidia_torch_venv/` | Source of torch 2.11+cu130 | — |
 
 All venvs inherit torch from the NVIDIA base environment via a `.pth` file. F5-TTS requires its own venv because it needs gradio 6.x while CosyVoice requires gradio 5.x — they cannot coexist in the same venv.
 
@@ -138,7 +138,7 @@ python3 -m venv ~/voice_clone
 
 # Point to the NVIDIA-provided torch (replace path if different on your system)
 echo "<YOUR_NVIDIA_TORCH_SITE_PACKAGES>" \
-    > ~/voice_clone/lib/python3.12/site-packages/kohya.pth
+    > ~/voice_clone/lib/python3.12/site-packages/nvidia_torch.pth
 
 source ~/voice_clone/bin/activate
 
@@ -153,7 +153,7 @@ python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
 python3 -m venv ~/f5tts
 
 echo "<YOUR_NVIDIA_TORCH_SITE_PACKAGES>" \
-    > ~/f5tts/lib/python3.12/site-packages/kohya.pth
+    > ~/f5tts/lib/python3.12/site-packages/nvidia_torch.pth
 ```
 
 ---
@@ -170,7 +170,7 @@ source ~/f5tts/bin/activate
 pip install f5-tts
 pip install "gradio>=6.0.0,<6.11"
 
-# Fix wandb conflict: the kohya venv has an old wandb that uses distutils
+# Fix wandb conflict: the NVIDIA base venv has an old wandb that uses distutils
 # (removed in Python 3.12). Force-install a newer version in this venv.
 ~/f5tts/bin/pip install wandb --upgrade --force-reinstall --no-deps
 
@@ -259,7 +259,7 @@ pip install torchvision==0.26.0 --index-url https://download.pytorch.org/whl/cu1
 
 # Restore NVIDIA torch (CosyVoice install overwrites it with a CPU-only version)
 echo "<YOUR_NVIDIA_TORCH_SITE_PACKAGES>" \
-    > ~/voice_clone/lib/python3.12/site-packages/kohya.pth
+    > ~/voice_clone/lib/python3.12/site-packages/nvidia_torch.pth
 
 # Verify
 python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
@@ -330,7 +330,7 @@ pip install -e .
 
 # Restore NVIDIA torch (Fish Speech install overwrites it)
 echo "<YOUR_NVIDIA_TORCH_SITE_PACKAGES>" \
-    > ~/voice_clone/lib/python3.12/site-packages/kohya.pth
+    > ~/voice_clone/lib/python3.12/site-packages/nvidia_torch.pth
 
 # Verify
 python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
@@ -506,7 +506,7 @@ Any pip package that depends on `torch` will replace the NVIDIA torch with a CPU
 ```bash
 source ~/voice_clone/bin/activate
 echo "<YOUR_NVIDIA_TORCH_SITE_PACKAGES>" \
-    > ~/voice_clone/lib/python3.12/site-packages/kohya.pth
+    > ~/voice_clone/lib/python3.12/site-packages/nvidia_torch.pth
 python -c "import torch; print(torch.cuda.is_available())"  # must print True
 ```
 
@@ -572,7 +572,7 @@ F5-TTS requires gradio 6.x but `voice_clone` has gradio 5.x (required by CosyVoi
 ```bash
 python3 -m venv ~/f5tts
 echo "<YOUR_NVIDIA_TORCH_SITE_PACKAGES>" \
-    > ~/f5tts/lib/python3.12/site-packages/kohya.pth
+    > ~/f5tts/lib/python3.12/site-packages/nvidia_torch.pth
 source ~/f5tts/bin/activate
 pip install f5-tts "gradio>=6.0.0,<6.11"
 ~/f5tts/bin/pip install wandb --upgrade --force-reinstall --no-deps

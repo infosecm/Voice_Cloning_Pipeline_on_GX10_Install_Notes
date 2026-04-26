@@ -23,7 +23,7 @@
 #
 # NOTES:
 #   - Requires the voice_clone venv with CosyVoice 2 installed
-#   - Forces torch 2.11+cu130 from kohya venv (GPU support on GB10)
+#   - Forces torch 2.11+cu130 from NVIDIA base venv (GPU support on GB10)
 #   - Reference audio must be <= 30 seconds (CosyVoice limitation)
 #   - Best results with French reference audio for French synthesis
 # =============================================================================
@@ -33,7 +33,8 @@ set -e
 # --- Configuration ---
 # Path to the site-packages directory containing torch 2.11+cu130 (pre-installed by NVIDIA on GX10)
 # To find it on your system: find ~ -name "torch" -path "*/site-packages/torch" -type d 2>/dev/null
-NVIDIA_TORCH_PATH="$HOME/kohya_ss/.venv_kohya/lib/python3.12/site-packages"
+NVIDIA_TORCH_PATH=""  # Set this to your NVIDIA torch site-packages path
+# To find it: find ~ -name "torch" -path "*/site-packages/torch" -type d 2>/dev/null
 
 COSYVOICE_DIR="$HOME/voice_clone/CosyVoice"
 MODEL_DIR="$COSYVOICE_DIR/pretrained_models/CosyVoice2-0.5B"
