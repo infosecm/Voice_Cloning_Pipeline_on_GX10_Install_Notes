@@ -186,7 +186,7 @@ tts = F5TTS()
 audio, sr, _ = tts.infer(
     ref_file='~/voice_clone/lib/python3.12/site-packages/f5_tts/infer/examples/basic/basic_ref_en.wav',
     ref_text='Some call me nature, others call me mother nature.',
-    gen_text='Hello, this is a voice cloning test on the NVIDIA GB10.',
+    gen_text='Hello, this is a voice cloning test on the Asus Ascent GX10.',
     file_wave='/tmp/test_f5tts.wav'
 )
 print(f'Generated {len(audio)/sr:.1f}s of audio — saved to /tmp/test_f5tts.wav')
@@ -293,9 +293,9 @@ cosyvoice = CosyVoice2('pretrained_models/CosyVoice2-0.5B', load_jit=False, load
 print('Device:', next(cosyvoice.model.flow.parameters()).device)
 
 output = cosyvoice.inference_zero_shot(
-    'Hello, this is a voice cloning test.',
+    'Hello, this is a voice cloning test on the Asus Ascent GX10.',
     'Some call me nature, others call me mother nature.',
-    '~/voice_clone/audio_samples/ref_fr_25s.wav',
+    ''~/voice_clone/lib/python3.12/site-packages/f5_tts/infer/examples/basic/basic_ref_en.wav',
     stream=False
 )
 for i, result in enumerate(output):
@@ -354,7 +354,7 @@ print('Model downloaded OK')
 ```bash
 cd ~/voice_clone/fish-speech
 CHECKPOINT="checkpoints/fish-speech-1.5"
-REF_AUDIO="~/voice_clone/audio_samples/ref_fr_25s.wav"
+REF_AUDIO="'~/voice_clone/lib/python3.12/site-packages/f5_tts/infer/examples/basic/basic_ref_en.wav'"
 SAMPLES="~/voice_clone/audio_samples"
 
 # Step 1: Encode reference audio to VQ tokens
@@ -367,8 +367,8 @@ python fish_speech/models/vqgan/inference.py \
 
 # Step 2: Generate semantic codes from text
 python fish_speech/models/text2semantic/inference.py \
-    --text "Bonjour, ceci est un test de synthese vocale." \
-    --prompt-text "Bonjour ! Aujourd hui, je vais vous parler d un sujet fascinant." \
+    --text "Hello, this is a voice cloning test on the Asus Ascent GX10." \
+    --prompt-text "Some call me nature, others call me mother nature." \
     --prompt-tokens "$SAMPLES/ref_fr_25s.npy" \
     --checkpoint-path "$CHECKPOINT" \
     --output-dir "$SAMPLES" \
@@ -396,11 +396,9 @@ Three shell scripts automate the most common tasks. All scripts are located in `
 
 ### `fish_speech_clone.sh` — Fish Speech voice cloning
 
-The recommended script for French voice cloning.
-
 ```bash
 # Basic usage — synthesizes text using the default reference voice
-./fish_speech_clone.sh "Texte a synthetiser"
+./fish_speech_clone.sh "Hello, this is a cloned voice using Fish Speech."
 
 # With a custom reference audio and transcript
 ./fish_speech_clone.sh "Text" /path/to/ref.wav "Transcript of the reference audio"
@@ -421,7 +419,7 @@ For Chinese/English synthesis or comparison testing.
 
 ```bash
 # Basic usage
-./cosyvoice_clone.sh "Text to synthesize"
+./cosyvoice_clone.sh "Hello, this is a cloned voice using CosyVoice 2."
 
 # With custom reference
 ./cosyvoice_clone.sh "Text" /path/to/ref.wav "Reference transcript"
@@ -475,7 +473,9 @@ source ~/voice_clone/bin/activate
 python -c "
 import whisper
 model = whisper.load_model('medium', device='cuda')
-result = model.transcribe('ref_fr_25s.wav', language='fr')
+
+# Change language parameter according to your needs (ex.: 'fr' for French)
+result = model.transcribe('<YOUR CUSTOM WAV FILE>', language='en')
 print(result['text'])
 "
 ```
