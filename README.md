@@ -16,7 +16,6 @@ Local voice cloning and synthesis pipeline running entirely on the ASUS Ascent G
 - [Installation — Fish Speech 1.5](#installation--fish-speech-15)
 - [Scripts Usage](#scripts-usage)
 - [Audio Reference Files](#audio-reference-files)
-- [Model Comparison](#model-comparison)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -160,7 +159,7 @@ echo "<YOUR_NVIDIA_TORCH_SITE_PACKAGES>" \
 
 ## Installation — F5-TTS
 
-F5-TTS is a zero-shot voice cloning model. It works well in English but produces noticeable accent artifacts in French (Scandinavian-sounding). Best used for English synthesis or rapid prototyping.
+F5-TTS is a zero-shot voice cloning model. It works well in English but may produce noticeable accent artifacts in other languages (ex.: a Scandinavian-sounding accent in French). Best used for English synthesis or rapid prototyping.
 
 ### Install
 
@@ -205,7 +204,7 @@ print(f'Generated {len(audio)/sr:.1f}s of audio — saved to /tmp/test_f5tts.wav
 
 ## Installation — CosyVoice 2
 
-CosyVoice 2 is a multilingual TTS model from Alibaba. It supports French but with a noticeable English accent. Best suited for Chinese or English synthesis. French results are intelligible but not fully natural.
+CosyVoice 2 is a multilingual TTS model from Alibaba. It supports other languages but with a noticeable English accent. Best suited for Chinese or English synthesis; other languages may not sound fully natural.
 
 ### Install
 
@@ -311,7 +310,7 @@ for i, result in enumerate(output):
 
 ## Installation — Fish Speech 1.5
 
-Fish Speech is the **recommended engine for French synthesis**. It produces natural-sounding French without foreign accent artifacts, unlike F5-TTS and CosyVoice 2.
+Based on our test results, Fish Speech is the **recommended engine for French synthesis**. It produces natural-sounding French without foreign accent artifacts, unlike F5-TTS and CosyVoice 2. We haven't tested other languages so far.
 
 ### Install
 
@@ -480,20 +479,6 @@ result = model.transcribe('ref_fr_25s.wav', language='fr')
 print(result['text'])
 "
 ```
-
----
-
-## Model Comparison
-
-| Model | French quality | Cloning accuracy | Speed (GPU) | Notes |
-|-------|---------------|-----------------|-------------|-------|
-| Fish Speech 1.5 | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ~15 tok/s | Best for French |
-| CosyVoice 2 | ⭐⭐⭐ | ⭐⭐⭐ | RTF ~7 on CPU* | English accent in French |
-| F5-TTS | ⭐⭐ | ⭐⭐⭐ | ~3s / 10s audio | Scandinavian accent in French |
-
-*CosyVoice runs on CPU for the ONNX speaker encoder (no aarch64 GPU wheel). The main model runs on GPU.
-
-**Recommendation:** Use Fish Speech 1.5 for all French synthesis.
 
 ---
 
