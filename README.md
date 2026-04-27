@@ -1,4 +1,4 @@
-# Voice Cloning Pipeline — ASUS Ascent GX10
+# Voice Cloning Pipeline on Asus Ascent GX10 (NVIDIA GB10 / CUDA 13.0 / aarch64)
 
 Local voice cloning and synthesis pipeline running entirely on the ASUS Ascent GX10 (NVIDIA GB10 Grace Blackwell Superchip). Supports French and multilingual zero-shot voice cloning using three TTS engines: F5-TTS, CosyVoice 2, and Fish Speech 1.5.
 
