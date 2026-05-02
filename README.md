@@ -111,44 +111,44 @@ pip install /path/to/cached/flash_attn-*.whl
 
 ```
 ~/voice_clone/
-├── audio_samples/                  # Reference audio files and generated outputs
-│   ├── ref_en_25s.wav              # Your self-recorded reference for VibeVoice/Qwen3
-│   └── output_*.wav                # Generated audio files (timestamped)
-├── CosyVoice/                      # CosyVoice source (git clone)
-├── cosyvoice_clone.sh              # CosyVoice 2 pipeline script
-├── f5tts/                          # F5-TTS dedicated venv (gradio 6.x)
+├── audio_samples/                          # Reference audio files and generated outputs
+│   ├── ref_en_25s.wav                      # Your self-recorded reference for VibeVoice/Qwen3
+│   └── output_*.wav                        # Generated audio files (timestamped)
+├── CosyVoice/                              # CosyVoice source (git clone)
+├── cosyvoice_clone.sh                      # CosyVoice 2 pipeline script
+├── f5tts/                                  # F5-TTS dedicated venv (gradio 6.x)
 │   ├── bin/
 │   ├── lib/
 │   └── ...
-├── fish-speech/                    # Fish Speech source (git clone, tag v1.5.1)
-├── fish_speech_clone.sh            # Fish Speech 1.5 pipeline script
-├── qwen3tts/                       # Qwen3-TTS source + venv
-│   ├── .venv/                      # Dedicated venv
-│   ├── finetuning/                 # Fine-tuning dataset and output
+├── fish-speech/                            # Fish Speech source (git clone, tag v1.5.1)
+├── fish_speech_clone.sh                    # Fish Speech 1.5 pipeline script
+├── qwen3tts/                               # Qwen3-TTS source + venv
+│   ├── .venv/                              # Dedicated venv
+│   ├── finetuning/                         # Fine-tuning dataset and output
 │   │   ├── dataset/
-│   │   │   └── audio/              # WAV segments for fine-tuning
-│   │   └── output/                 # Fine-tuned model output
-│   ├── models/                     # Downloaded model weights
-│   │   ├── Qwen3-TTS-12Hz-1.7B-Base/        # ~4.5 GB — recommended for voice cloning
-│   │   ├── Qwen3-TTS-12Hz-1.7B-VoiceDesign/ # Optional
+│   │   │   └── audio/                      # WAV segments for fine-tuning
+│   │   └── output/                         # Fine-tuned model output
+│   ├── models/                             # Downloaded model weights
+│   │   ├── Qwen3-TTS-12Hz-1.7B-Base/       # ~4.5 GB — recommended for voice cloning
+│   │   ├── Qwen3-TTS-12Hz-1.7B-VoiceDesign/
 │   │   └── Qwen3-TTS-Tokenizer-12Hz/
-│   ├── output_audio/               # Generated audio files
-│   └── src/                        # Source repo (git clone)
-├── start_f5tts_gradio.sh           # F5-TTS Gradio web UI launcher
-├── start_qwen3tts_gradio.sh        # Qwen3-TTS Gradio web UI launcher
-├── start_vibevoice_gradio.sh       # VibeVoice Gradio web UI launcher
-├── vibevoice/                      # VibeVoice source + venv
-│   ├── .venv/                      # Dedicated venv
-│   ├── demo/                       # Gradio demo scripts
-│   │   └── voices/                 # Custom voice WAV files for speaker selection
+│   ├── output_audio/                       # Generated audio files
+│   └── src/                                # Source repo (git clone)
+├── start_f5tts_gradio.sh                   # F5-TTS Gradio web UI launcher
+├── start_qwen3tts_gradio.sh                # Qwen3-TTS Gradio web UI launcher
+├── start_vibevoice_gradio.sh               # VibeVoice Gradio web UI launcher
+├── vibevoice/                              # VibeVoice source + venv
+│   ├── .venv/                              # Dedicated venv
+│   ├── demo/                               # Gradio demo scripts
+│   │   └── voices/                         # Custom voice WAV files for speaker selection
 │   └── models/
-│       └── VibeVoice-1.5B/        # Model weights (~6 GB)
-├── voxtral/                        # Voxtral TTS (pure C implementation)
-│   ├── voxtral_tts                 # Compiled binary
-│   └── voxtral-tts-model/          # Model weights (~8 GB)
-└── voxtral_generate.py             # Voxtral TTS Python wrapper script
+│       └── VibeVoice-1.5B/                 # Model weights (~6 GB)
+├── voxtral/                                # Voxtral TTS (pure C implementation)
+│   ├── voxtral_tts                         # Compiled binary
+│   └── voxtral-tts-model/                  # Model weights (~8 GB)
+└── voxtral_generate.py                     # Voxtral TTS Python wrapper script
 
-~/nvidia_torch_venv/                # Dedicated torch base venv
+~/nvidia_torch_venv/                        # Dedicated torch base venv
 ```
 
 ---
@@ -243,7 +243,9 @@ echo "~/nvidia_torch_venv/lib/python3.12/site-packages" \
 
 ## Installation — F5-TTS
 
-F5-TTS is a zero-shot voice cloning model. It works well in English but may produce noticeable accent artifacts in other languages (ex.: a Scandinavian-sounding accent in French). Best used for English synthesis or rapid prototyping.
+F5-TTS is a zero-shot English TTS model based on a flow-matching architecture with a DiT (Diffusion Transformer) backbone, developed at Tsinghua University. It uses a Vocos vocoder for waveform synthesis and operates without requiring a phoneme aligner or reference transcript, making it one of the simplest engines to use. Inference is performed in a single forward pass through the diffusion model conditioned on the reference audio embedding and target text.
+
+Voice cloning quality in English is high, producing natural prosody and accurate speaker similarity. Non-English synthesis is supported but produces noticeable accent artifacts due to phoneme coverage mismatch. F5-TTS requires Gradio 6.x, which conflicts with the Gradio 5.x required by CosyVoice 2; for this reason we made it run in a dedicated venv (`~/voice_clone/f5tts/`) separate from the main `voice_clone` environment. The Gradio interface is served on port 7861 and includes a built-in voice cloning tab with real-time audio preview. Model size: ~1B parameters. License: CC BY-NC 4.0.
 
 ### Install
 
@@ -302,7 +304,9 @@ deactivate
 
 ## Installation — CosyVoice 2
 
-CosyVoice 2 is a multilingual TTS model from Alibaba. It supports other languages but with a noticeable English accent. Best suited for Chinese or English synthesis; other languages may not sound fully natural.
+CosyVoice 2 is Alibaba's second-generation multilingual TTS and voice cloning model, optimized primarily for Chinese and English synthesis. It uses a supervised flow-matching generative model conditioned on a speech language model (SpeechLM) that jointly models text and acoustic tokens. The 0.5B variant used in this pipeline is lightweight and fast, making it well suited for rapid iteration and prototyping. Zero-shot voice cloning is achieved from a reference clip of up to 30 seconds — a hard limit enforced by the model's speech token extractor, which will raise an assertion error if exceeded.
+
+Non-Chinese/English languages are supported but produce a noticeable foreign accent due to the training data distribution. Installation on aarch64 requires several dependency patches: `onnxruntime-gpu` must be replaced with the CPU variant (no aarch64 wheel exists), `grpcio` must be pinned to 1.67.0, `protobuf` upgraded to 5.29.6, and `tensorrt` downgraded to 10.13.0.35. The model loads via CUDA and runs inference entirely on GPU. Output is saved as a 22.05 kHz WAV file. Model size: ~0.5B parameters. License: Apache 2.0.
 
 ### Install
 
@@ -408,7 +412,9 @@ for i, result in enumerate(output):
 
 ## Installation — Fish Speech 1.5
 
-Based on our test results, Fish Speech produces natural-sounding voices without foreign accent artifacts, unlike F5-TTS and CosyVoice 2.
+Fish Speech 1.5 is a zero-shot multilingual TTS model developed by FishAudio, supporting 50+ languages including French, English, Chinese, Japanese, Korean, Arabic and German. It uses a three-stage inference pipeline: (1) a VQ-GAN encoder tokenizes the reference audio into discrete acoustic tokens stored as `.npy` files, (2) an autoregressive transformer generates semantic codes from the input text conditioned on the reference tokens, and (3) a VQ-GAN decoder synthesizes the final waveform from the semantic codes.
+
+The model uses a Finite Scalar Quantization (FSQ) codec operating at 21 Hz with 8 codebooks of 1024 entries each. Voice cloning requires only a short reference clip (10–30 seconds) with no transcript needed, making it one of the most practical zero-shot engines available. The pipeline is entirely local and GPU-accelerated via CUDA. Model size: ~1.5B parameters. Checkpoint: `firefly-gan-vq-fsq-8x1024-21hz`. License: CC BY-NC 4.0.
 
 ### Install
 
@@ -486,9 +492,9 @@ python fish_speech/models/vqgan/inference.py \
 
 ## Installation — VibeVoice
 
-VibeVoice is a Microsoft open-source TTS model optimized for **English podcast generation with up to 4 distinct speakers** and up to 90 minutes of continuous audio in a single pass. It supports voice cloning.
+VibeVoice is a Microsoft open-source TTS model designed specifically for long-form multi-speaker audio generation. It is the only engine in this pipeline capable of handling up to 4 simultaneous speakers with distinct cloned voices in a single inference pass, and can generate up to 90 minutes of continuous audio without reloading the model. The architecture combines a language model backbone with a diffusion-based acoustic head operating at ultra-low frame rate (7.5 Hz), using continuous audio tokenizers rather than discrete codebooks. This design produces more natural prosody and speaker transitions compared to discrete-token approaches.
 
-The official Microsoft repo had its TTS code removed in September 2025. Use the community fork: `github.com/vibevoice-community/VibeVoice`.
+Primary language support is English and Chinese; French and other languages are listed as experimental with variable results. Nine preset voices are included (`en-Alice_woman`, `en-Carter_man`, `en-Frank_man`, `en-Maya_woman`, etc.) and custom voices can be added by placing a reference WAV file in the `demo/voices/` directory. The official Microsoft repository had its TTS code removed in September 2025 following misuse reports — our implementation uses the community fork at `github.com/vibevoice-community/VibeVoice`. Requires flash-attn (prebuilt aarch64 wheel available in pip cache after first installation). Model size: ~6 GB. License: MIT.
 
 ### Install
 
@@ -621,9 +627,10 @@ Speaker 1: Our first segment covers the latest developments in the field.
 
 ## Installation — Qwen3-TTS
 
-Qwen3-TTS produces excellent voice quality, supports voice cloning from a 3-second reference, and handles up to 10 minutes of continuous generation per segment. Apache 2.0 license.
+Qwen3-TTS is Alibaba's open-weight neural TTS model family built on the Qwen3 language model architecture. The 1.7B-Base variant used in this pipeline generates audio at a 12 Hz token rate using a flow-matching acoustic decoder conditioned on LLM hidden states. It supports 10 languages including French and English, with cross-lingual voice transfer — a reference clip recorded in one language can be used to synthesize speech in another. Voice cloning is achieved from a reference clip as short as 3 seconds. The model handles up to 10 minutes of continuous speech per inference call without degradation, making it suitable for long-form content such as podcasts and audiobooks.
 
-Three model variants are available. Use **1.7B-Base** for voice cloning with your own reference audio.
+It is the only engine in this pipeline that supports supervised fine-tuning on a custom voice dataset, permanently embedding a target speaker's characteristics into the model weights and eliminating the need for a reference clip at inference time. A phonetically balanced French corpus of 150 sentences is provided in this repository for recording sessions prior to fine-tuning. Available variants: 1.7B-Base (voice cloning), 1.7B-VoiceDesign (voice generation from text
+description), 0.6B-Base (lightweight, not recommended for long-form). Model size: ~4.5 GB. License: Apache 2.0.
 
 | Model | Use case | Size |
 |-------|----------|------|
@@ -778,7 +785,9 @@ The fine-tuned model is used identically to the base model — simply point `mod
 
 ## Installation — Voxtral TTS
 
-Voxtral TTS is Mistral's open-weight multilingual TTS model released March 26, 2026. It supports 9 languages natively, with 20 preset voices and 24 kHz audio output. Blind human evaluations show 62.8% preference over ElevenLabs Flash v2.5.
+Voxtral TTS is Mistral's open-weight multilingual TTS model released in March 2026. It supports 9 languages (English, French, German, Spanish, Italian, Portuguese, Dutch, Arabic, Hindi) with 20 preset voices and 24 kHz audio output. The model combines a Ministral 3B LLM backbone with a flow-matching acoustic transformer and an EnCodec-based audio codec decoder, generating 37 audio tokens per frame (1 semantic token + 36 acoustic tokens). Blind human evaluations show a 62.8% preference rate over ElevenLabs Flash v2.5. This pipeline uses the pure C implementation (`voxtral-tts.c` by mudler), which compiles to a single binary with no Python, no venv, and no GPU dependency — inference runs entirely on CPU via OpenBLAS.
+
+The official vLLM-Omni serving stack (which would enable persistent model loading, Gradio UI, and sub-100ms latency) is not yet available for aarch64 + CUDA 13.0 as of mid-2026. As a result, the model reloads from disk on each call (~40 seconds). The included Python wrapper `voxtral_generate.py` adds automatic sacrificial-word prefixing and silence trimming via ffmpeg. Maximum generation length: ~2m40s per call (2000 audio frames). Model size: ~8 GB. License: CC BY-NC 4.0.
 
 ### Architecture
 
