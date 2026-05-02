@@ -49,7 +49,7 @@ The repository also includes **seven phonetically balanced voice recording corpo
 - [Installation notes — Voxtral TTS](#installation--voxtral-tts)
 - [Scripts Usage](#scripts-usage)
 - [Audio Reference Files](#audio-reference-files)
-- [Voice Recording Corpora for Fine-tuning](voice-recording-corpora-for-fine-tuning)
+- [Voice Recording Corpora for Fine-tuning](voice-recording-corpora-for-finetuning)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -1136,7 +1136,7 @@ print(result['text'])
 
 ---
 
-## Voice Recording Corpora for Fine-tuning
+## Voice Recording Corpora for Finetuning
 
 ### Overview
 
