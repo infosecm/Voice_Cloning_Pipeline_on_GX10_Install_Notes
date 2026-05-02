@@ -1,5 +1,30 @@
 # Voice Cloning Pipeline on Asus Ascent GX10 (NVIDIA GB10 / CUDA 13.0 / aarch64)
 
+<!-- Hardware & Platform -->
+![NVIDIA GB10](https://img.shields.io/badge/hardware-NVIDIA%20GB10-76b900?logo=nvidia)
+![CUDA 13.0](https://img.shields.io/badge/CUDA-13.0-76b900?logo=nvidia)
+![aarch64](https://img.shields.io/badge/arch-aarch64%20%2F%20arm64-orange)
+![Ubuntu 24.04](https://img.shields.io/badge/OS-Ubuntu%2024.04-E95420?logo=ubuntu&logoColor=white)
+
+<!-- Software Stack -->
+![Python 3.12](https://img.shields.io/badge/python-3.12-3776AB?logo=python&logoColor=white)
+![Gradio](https://img.shields.io/badge/UI-Gradio-orange?logo=gradio)
+![Local AI](https://img.shields.io/badge/AI-local%20%2F%20self--hosted-success)
+
+<!-- Capabilities -->
+![TTS](https://img.shields.io/badge/TTS-text--to--speech-blue)
+![Voice Cloning](https://img.shields.io/badge/voice-cloning-purple)
+![License](https://img.shields.io/badge/license-various-lightgrey)
+
+<!-- Engines -->
+![Fish Speech](https://img.shields.io/badge/engine-Fish%20Speech%201.5-blue)
+![Qwen3-TTS](https://img.shields.io/badge/engine-Qwen3--TTS-red)
+![VibeVoice](https://img.shields.io/badge/engine-VibeVoice-blueviolet)
+![Voxtral](https://img.shields.io/badge/engine-Voxtral%20TTS-ff7000)
+![F5-TTS](https://img.shields.io/badge/engine-F5--TTS-informational)
+![CosyVoice](https://img.shields.io/badge/engine-CosyVoice%202-success)
+
+
 Local voice cloning and synthesis pipeline running entirely on the ASUS Ascent GX10 (NVIDIA GB10 Grace Blackwell Superchip). Comparative results table and documented installation notes testing six (6) multilingual synthesis and/or zero-shot voice cloning models: F5-TTS, CosyVoice 2, Fish Speech 1.5, VibeVoice, Qwen3-TTS, and Voxtral TTS.
 
 ---
