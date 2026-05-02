@@ -10,12 +10,12 @@
 # ARGUMENTS:
 #   $1  (required) Text to synthesize
 #   $2  (optional) Path to reference audio WAV file (max 30 seconds)
-#                  Default: ~/voice_clone/audio_samples/ref_fr_25s.wav
+#                  Default: ~/voice_clone/audio_samples/ref_en_25s.wav
 #   $3  (optional) Transcript of the reference audio
-#                  Default: opening sentences from the French reference recording
+#                  Default: opening sentences from the English reference recording
 #
 # EXAMPLES:
-#   ./cosyvoice_clone.sh "Bonjour, comment allez-vous ?"
+#   ./cosyvoice_clone.sh "Hello, how are you doing ?"
 #   ./cosyvoice_clone.sh "Hello world" ~/voice_clone/audio_samples/ref_en.wav "Hello, this is my reference."
 #
 # OUTPUT:
@@ -23,19 +23,13 @@
 #
 # NOTES:
 #   - Requires the voice_clone venv with CosyVoice 2 installed
-#   - Forces torch 2.11+cu130 from NVIDIA base venv (GPU support on GB10)
+#   - Forces torch 2.11+cu130 from nvidia_torch_venv (GPU support on GB10)
 #   - Reference audio must be <= 30 seconds (CosyVoice limitation)
-#   - Best results with French reference audio for French synthesis
 # =============================================================================
 
 set -e
 
 # --- Configuration ---
-# Path to the site-packages directory containing torch 2.11+cu130 (pre-installed by NVIDIA on GX10)
-# To find it on your system: find ~ -name "torch" -path "*/site-packages/torch" -type d 2>/dev/null
-NVIDIA_TORCH_PATH=""  # Set this to your NVIDIA torch site-packages path
-# To find it: find ~ -name "torch" -path "*/site-packages/torch" -type d 2>/dev/null
-
 COSYVOICE_DIR="$HOME/voice_clone/CosyVoice"
 MODEL_DIR="$COSYVOICE_DIR/pretrained_models/CosyVoice2-0.5B"
 SAMPLES_DIR="$HOME/voice_clone/audio_samples"
@@ -44,11 +38,11 @@ VENV="$HOME/voice_clone"
 # --- Default reference text ---
 # Note: apostrophes removed to avoid bash quoting issues.
 # To use accented/apostrophe text, pass it explicitly as $3.
-DEFAULT_REF_TEXT="Bonjour ! Aujourd hui, je vais vous parler d un sujet fascinant, l intelligence artificielle et son impact sur notre quotidien. Depuis quelques annees, ces technologies ont transforme notre facon de travailler, de communiquer et meme de creer."
+DEFAULT_REF_TEXT="Hello! Today I will talk to you about a fascinating subject, artificial intelligence and its impact on our daily lives. Over the past few years, these technologies have transformed the way we work, communicate and even create."
 
 # --- Arguments ---
 GEN_TEXT="${1}"
-REF_AUDIO="${2:-$SAMPLES_DIR/ref_fr_25s.wav}"
+REF_AUDIO="${2:-$SAMPLES_DIR/ref_en_25s.wav}"
 REF_TEXT="${3:-$DEFAULT_REF_TEXT}"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 OUTPUT="$SAMPLES_DIR/output_cosyvoice_${TIMESTAMP}.wav"
@@ -58,7 +52,7 @@ if [ -z "$GEN_TEXT" ]; then
     echo "Usage: $0 \"Text to synthesize\" [ref_audio.wav] [ref_text]"
     echo ""
     echo "Examples:"
-    echo "  $0 \"Bonjour, comment allez-vous ?\""
+    echo "  $0 \"Hello, how are you doing ?\""
     echo "  $0 \"Hello world\" /path/to/ref.wav \"Hello, this is my reference.\""
     exit 1
 fi
@@ -72,7 +66,7 @@ fi
 source "$VENV/bin/activate"
 
 # --- Restore torch 2.11+cu130 (required after CosyVoice install overwrites it) ---
-echo "$NVIDIA_TORCH_PATH" > "$VENV/lib/python3.12/site-packages/nvidia_torch.pth"
+echo "$HOME/nvidia_torch_venv/lib/python3.12/site-packages" > "$VENV/lib/python3.12/site-packages/nvidia_torch.pth"
 
 echo "=============================================="
 echo " CosyVoice 2 - Voice Cloning Pipeline"
