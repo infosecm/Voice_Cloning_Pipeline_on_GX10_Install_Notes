@@ -25,7 +25,11 @@
 ![CosyVoice](https://img.shields.io/badge/engine-CosyVoice%202-success)
 
 
-Local voice cloning and synthesis pipeline running entirely on the ASUS Ascent GX10 (NVIDIA GB10 Grace Blackwell Superchip). Comparative results table and documented installation notes testing six (6) multilingual synthesis and/or zero-shot voice cloning models: F5-TTS, CosyVoice 2, Fish Speech 1.5, VibeVoice, Qwen3-TTS, and Voxtral TTS.
+A fully local voice cloning and speech synthesis pipeline running entirely on the ASUS Ascent GX10 (NVIDIA GB10 Grace Blackwell Superchip, 128 GB unified memory, CUDA 13.0, aarch64). This repository documents the installation, configuration, and evaluation of six open-weight multilingual TTS and zero-shot voice cloning engines on this specific hardware, including all dependency patches, workarounds, and aarch64-specific constraints encountered during setup.
+
+The six engines covered are **F5-TTS**, **CosyVoice 2**, **Fish Speech 1.5**, **VibeVoice**, **Qwen3-TTS**, and **Voxtral TTS** — spanning a range of architectures, language coverage, cloning approaches, and interface types. A ranked comparison table summarizes their capabilities across voice cloning method, multi-speaker support, maximum generation length, and serving interface.
+
+The repository also includes **seven phonetically balanced voice recording corpora** (150 sentences each) in English, French, German, Italian, Russian, Spanish, and Chinese, designed for fine-tuning Qwen3-TTS on a custom speaker voice. Each corpus was composed to cover the full phonetic spectrum of its target language across 15 structural categories, in a neutral broadcast narration register.
 
 ---
 
@@ -45,6 +49,7 @@ Local voice cloning and synthesis pipeline running entirely on the ASUS Ascent G
 - [Installation notes — Voxtral TTS](#installation--voxtral-tts)
 - [Scripts Usage](#scripts-usage)
 - [Audio Reference Files](#audio-reference-files)
+- [Voice Recording Corpora for Fine-tuning](voice-recording-corpora-for-fine-tuning)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -1128,6 +1133,187 @@ result = model.transcribe('~/voice_clone/audio_samples/ref_en_25s.wav', language
 print(result['text'])
 "
 ```
+
+---
+
+## Voice Recording Corpora for Fine-tuning
+
+### Overview
+
+This repository includes six phonetically balanced sentence corpora designed for fine-tuning
+Qwen3-TTS on a custom speaker voice. Each corpus contains 150 sentences carefully composed to
+cover the full phonetic spectrum of its target language — vowels, consonants, consonant clusters,
+nasal sounds, intonation patterns, rhythmic variations, and natural prosody — while remaining
+thematically neutral and suitable for a public repository.
+
+| File | Language | Sentences |
+|------|----------|-----------|
+| `corpus_en.md` | English | 150 |
+| `corpus_fr.md` | French | 150 |
+| `corpus_de.md` | German | 150 |
+| `corpus_it.md` | Italian | 150 |
+| `corpus_ru.md` | Russian | 150 |
+| `corpus_zh.md` | Chinese (Mandarin) | 150 |
+| `corpus_es.md` | Spanish | 150 |
+
+---
+
+### What These Files Are For
+
+Qwen3-TTS 1.7B-Base supports supervised fine-tuning on a custom voice dataset. Fine-tuning
+permanently embeds a target speaker's vocal characteristics into the model weights, eliminating
+the need to provide a reference audio clip at inference time and producing more consistent,
+natural-sounding output across long-form content.
+
+A high-quality fine-tuning dataset requires:
+
+- **Coverage** — sentences that collectively exercise every phoneme, intonation contour, and
+  prosodic pattern of the language, so the model learns the speaker's voice across the full
+  acoustic range rather than a narrow subset.
+- **Neutrality** — sentences that are factual and thematically generic, free of strong emotional
+  coloring or domain-specific vocabulary that could bias the model toward a particular speaking style.
+- **Naturalness** — sentences written in the register of broadcast journalism or formal narration,
+  which produces the most consistent and transferable speaking style for a TTS model.
+
+These corpora were designed to meet all three criteria.
+
+---
+
+### Structure of Each Corpus
+
+Each file follows the same 15-section structure, organized by linguistic and prosodic category:
+
+| Section | Content |
+|---------|---------|
+| 1 | Simple declarative sentences |
+| 2 | Questions and rising intonation |
+| 3 | Numbers, dates and measurements |
+| 4 | Long sentences with subordinate clauses |
+| 5 | Technical descriptions and explanations |
+| 6 | Comparisons and contrasts |
+| 7 | Formal and reported speech |
+| 8 | Conditional and hypothetical sentences |
+| 9 | Sequential and procedural language |
+| 10 | Descriptive passages |
+| 11 | Abstract and analytical language |
+| 12 | Anaphora and rhetorical structures |
+| 13 | Names, acronyms and proper nouns |
+| 14 | Pacing variations and natural pauses |
+| 15 | Closing and conclusive statements |
+
+This structure ensures coverage of short punchy sentences, long breath-supported sentences,
+rising and falling intonation, sequences of numbers, consonant clusters, nasal vowels, formal
+register, and the natural rhythm variations that a TTS model needs to generalize across all
+types of input text.
+
+---
+
+### How to Use These Files
+
+#### Step 1 — Record your audio
+
+Read each sentence aloud into a clean recording setup (quiet room, consistent microphone
+distance, no background noise or music). Each sentence must be saved as a separate WAV file.
+
+Recommended audio specifications:
+
+| Property | Value |
+|----------|-------|
+| Format | WAV |
+| Sample rate | 24 000 Hz |
+| Channels | Mono |
+| Bit depth | 16-bit |
+| Duration per sentence | 5–30 seconds |
+| Silence before/after | 2 seconds |
+
+Name your files sequentially: `phrase_en_001.wav`, `phrase_en_002.wav`, etc. Use the language
+code prefix to keep corpora organized if you record in multiple languages.
+
+#### Step 2 — Prepare the metadata file
+
+Create a `metadata.jsonl` file in `~/voice_clone/qwen3tts/finetuning/dataset/` with one
+JSON object per line, matching each audio file to its exact transcript:
+
+```json
+{"audio": "audio/phrase_en_001.wav", "text": "The sun rises in the east and sets in the west every single day without exception."}
+{"audio": "audio/phrase_en_002.wav", "text": "Water freezes at zero degrees Celsius under standard atmospheric pressure conditions."}
+```
+
+The transcript must match the recorded audio exactly — including punctuation, as Qwen3-TTS
+uses punctuation to model prosodic boundaries.
+
+#### Step 3 — Fine-tune the model
+
+```bash
+source ~/voice_clone/qwen3tts/.venv/bin/activate
+
+cd ~/voice_clone/qwen3tts/src
+
+python finetune.py \
+    --model_path ~/voice_clone/qwen3tts/models/Qwen3-TTS-12Hz-1.7B-Base \
+    --dataset_path ~/voice_clone/qwen3tts/finetuning/dataset \
+    --output_dir ~/voice_clone/qwen3tts/finetuning/output \
+    --num_epochs 10 \
+    --learning_rate 1e-5 \
+    --batch_size 4
+```
+
+Training time on the GX10 (NVIDIA GB10, 128 GB unified memory): approximately 2–4 hours
+for 150 sentences over 10 epochs.
+
+#### Step 4 — Use the fine-tuned model
+
+Point any inference script to the output directory instead of the base model:
+
+```python
+model = Qwen3TTSModel.from_pretrained(
+    "/home/user/voice_clone/qwen3tts/finetuning/output",
+    device_map="cuda:0",
+    dtype=torch.bfloat16,
+)
+
+# No reference audio clip needed
+wavs, sr = model.generate(
+    text="The technology landscape is evolving rapidly across every industry sector.",
+    language="English",
+)
+```
+
+Or via the Gradio interface:
+
+```bash
+qwen-tts-demo ~/voice_clone/qwen3tts/finetuning/output \
+    --ip 0.0.0.0 \
+    --port 7863 \
+    --dtype bfloat16
+```
+
+---
+
+### How the Corpora Were Generated
+
+The 150 sentences in each corpus were composed to satisfy three constraints simultaneously:
+
+**Phonetic balance.** Each language's phoneme inventory was used as a checklist. Sentences
+were distributed across 15 structural categories to ensure that no phoneme class, intonation
+contour, or prosodic pattern was systematically under-represented. Long sentences in sections
+4, 7, and 11 exercise sustained breath support and complex prosodic phrasing. Short sentences
+in sections 12 and 14 exercise rhythm, pacing, and pause placement. Sections 3 and 13 include
+numbers, acronyms, and proper nouns — categories that TTS models frequently handle poorly
+without explicit training coverage.
+
+**Thematic neutrality.** All sentences are factual, generic, and domain-agnostic. No sentence
+is tied to a specific profession, ideology, geographic region, or current event. This ensures
+that the recording sessions produce consistent vocal delivery across the full corpus and that
+the resulting model generalizes well to arbitrary input text.
+
+**Register consistency.** All sentences are written in the register of formal broadcast
+narration — the style used by radio and television presenters. This is the optimal register
+for TTS fine-tuning because it produces the most stable, reproducible speaking style, free
+from the prosodic variability introduced by conversational or emotional registers.
+
+The corpora were generated with Claude (Anthropic) and reviewed for linguistic accuracy,
+phonetic coverage, and thematic neutrality before inclusion in this repository.
 
 ---
 
